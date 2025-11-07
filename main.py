@@ -1,22 +1,13 @@
+from pprint import pprint
 import csv
 import re
-import requests
-
-from io import StringIO
-from pprint import pprint
 from collections import defaultdict
 
-url = "https://data.nalog.ru/opendata/7707329152-regoffice/data-03012016-structure-11192014.csv"
+with open("phonebook_raw.csv", encoding="utf-8") as f:
+    rows = csv.reader(f, delimiter=",")
+    contacts_list = list(rows)
 
-response = requests.get(url)
-response.raise_for_status()
-
-file_like_object = StringIO(response.text)
-# Обратите внимание на разделитель ';'
-csv_reader = csv.reader(file_like_object, delimiter=';')
-
-all_rows = list(csv_reader)
-
+pprint(contacts_list)
 
 def format_phone(phone):
     if not phone:
@@ -40,7 +31,7 @@ def format_phone(phone):
 
 
 processed_rows = []
-for row in all_rows:
+for row in contacts_list:
     if len(row) < 7:
         continue
 
@@ -84,10 +75,8 @@ for key, records in grouped_records.items():
 
         final_records.append(merged_record)
 
-print("\nПервые 10 записей:")
-for i, record in enumerate(final_records[1:11]):
-    pprint(f"{i + 1}. {record}")
+pprint(final_records)
 
 with open("phonebook.csv", "w", encoding="utf-8", newline='') as f:
-    datawriter = csv.writer(f, delimiter=';')
+    datawriter = csv.writer(f, delimiter=',')
     datawriter.writerows(final_records)
